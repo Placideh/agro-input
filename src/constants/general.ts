@@ -1,0 +1,4 @@
+export const TIME_OUT_LIMIT = 60 * 10000;
+export const BASE_LAND_ACRE_SIZE = 1;
+export const BASE_FERTILIZER_PER_BASE_LAND_ACRE_SIZE = 3;
+export const BASE_SEED_PER_BASE_LAND_ACRE_SIZE = 1;

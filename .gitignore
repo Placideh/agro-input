@@ -1,0 +1,10 @@
+# Compiled JavaScript files
+/build
+# Visual Studio Code
+.vscode
+.idea
+# dotenv environment variable
+.env
+
+# node_modules
+node_modules
