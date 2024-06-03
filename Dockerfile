@@ -8,13 +8,15 @@ COPY package.json ./
 COPY package-lock ./
 
 RUN npm install
+
+COPY . .
 RUN npm run build
 
 # Copy needed env files
 # COPY .env ./
 
 # Bundle app source
-COPY build .
+# COPY build .
 
 EXPOSE 8080
-CMD ["node", "index.js"]
+CMD ["npm","run", "start"]
