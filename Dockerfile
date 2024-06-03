@@ -16,7 +16,7 @@ RUN npm run build
 # COPY .env ./
 
 # Bundle app source
-# COPY build .
+COPY build .
 
 EXPOSE 8080
 CMD ["node","index.js"]
