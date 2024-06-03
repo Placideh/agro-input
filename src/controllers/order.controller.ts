@@ -34,7 +34,7 @@ export class OrderController {
     order.farmerEmail = farmerEmail;
     order.farmerName = farmerName;
     order.seed = existingSeed;
-    order.status = OrderStatus.pending;
+    order.status = OrderStatus.initiated;
     order.paymentMethod = paymentMethod;
 
     // calculate amount to be paid
@@ -120,7 +120,7 @@ export class OrderController {
     });
   }
 
-  static async getAllOrders(_: Request, res: Response) {
+  static async getAllOrders(req: Request, res: Response) {
     const cachedData = cache.get("orders");
     if (cachedData) {
       console.log("Returning cached seeds");
@@ -132,6 +132,29 @@ export class OrderController {
     console.log("Fetching orders from database");
     const orderRepo = AppDataSource.getRepository(Order);
     const orders = await orderRepo.find();
+    cache.put("orders", orders, TIME_OUT_LIMIT);
+    return res.status(HTTP_OK).json({
+      message: "Orders retrieved successfully",
+      data: orders,
+    });
+  }
+
+  static async paginateOrders(req: Request, res: Response) {
+    const builder =
+      AppDataSource.getRepository(Order).createQueryBuilder("orders");
+    const cachedData = cache.get("orders");
+    const page: number = parseInt(req.query.page as string) || 5;
+    const perPage = 5;
+    builder.offset((page - 1) * perPage).limit(perPage);
+    if (cachedData) {
+      console.log("Returning cached seeds");
+      return res.status(HTTP_OK).json({
+        message: "Orders retrieved successfully",
+        data: cachedData,
+      });
+    }
+    console.log("Fetching orders from database");
+    const orders = await builder.getMany();
     cache.put("orders", orders, TIME_OUT_LIMIT);
     return res.status(HTTP_OK).json({
       message: "Orders retrieved successfully",

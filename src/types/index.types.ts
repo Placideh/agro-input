@@ -1,4 +1,5 @@
 export enum OrderStatus {
+  initiated = "initiated",
   pending = "pending",
   approved = "approved",
   rejected = "rejected",
