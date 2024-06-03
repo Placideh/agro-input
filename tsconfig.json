@@ -7,7 +7,7 @@
     "baseUrl": "./",
     "resolveJsonModule": true,
     "allowJs": true,
-    "outDir": "build/src",
+    "outDir": "build",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
