@@ -3,6 +3,7 @@ import cache from "memory-cache";
 import AppDataSource from "../data-source";
 import { Order } from "../entity/Order.entity";
 import {
+  HTTP_BAD_REQUEST,
   HTTP_CREATED,
   HTTP_NOT_FOUND,
   HTTP_OK,
@@ -16,9 +17,9 @@ import { OrderStatus } from "../types/index.types";
 export class OrderController {
   static async requestOrder(req: Request, res: Response) {
     const { landSize, farmerEmail, farmerName, seedId, paymentMethod } =
-      req.body;
-    const fertilizerQuantity = calculateFertilizerQuantiy(landSize);
-    const seedQuantity = calculateSeedQuantiy(landSize);
+      req.body.data;
+    const fertilizerQuantity = calculateFertilizerQuantiy(parseFloat(landSize));
+    const seedQuantity = calculateSeedQuantiy(parseFloat(landSize));
 
     const seedRepo = AppDataSource.getRepository(Seed);
     const existingSeed = await seedRepo.findOne({ where: { id: seedId } });
@@ -27,21 +28,28 @@ export class OrderController {
         message: `Seed ${seedId} is not found`,
       });
     }
+    if (parseFloat(landSize) <= 0) {
+      return res.status(HTTP_BAD_REQUEST).json({
+        message: `Land size must not equal to zero or less`,
+      });
+    }
     const order = new Order();
     order.seedQuantity = seedQuantity;
     order.fertilizerQuantity = fertilizerQuantity;
-    order.landSize = landSize;
+    order.landSize = parseFloat(landSize);
     order.farmerEmail = farmerEmail;
     order.farmerName = farmerName;
     order.seed = existingSeed;
     order.status = OrderStatus.initiated;
-    order.paymentMethod = paymentMethod;
+    order.paymentMethod = paymentMethod || "MOMO";
 
     // calculate amount to be paid
-    const seedAmountToPaid = existingSeed.price! * seedQuantity;
+    const seedAmountToPaid =
+      parseFloat(existingSeed.price?.toString()!) * seedQuantity;
 
     const fertilizerAmountToPaid =
-      existingSeed.fertilizer?.price! * fertilizerQuantity;
+      parseFloat(existingSeed.fertilizer?.price?.toString()!) *
+      fertilizerQuantity;
 
     const amountTobePaid = seedAmountToPaid + fertilizerAmountToPaid;
 
@@ -57,7 +65,7 @@ export class OrderController {
   static async updateOrder(req: Request, res: Response) {
     const { id } = req.params;
     const { famerEmail, farmerName, paymentMethod, status } = req.body;
-
+    console.log("BODY:", req.body);
     const orderRepo = AppDataSource.getRepository(Order);
     const existingOrder = await orderRepo.findOne({ where: { id } });
     if (existingOrder === null) {
@@ -67,10 +75,7 @@ export class OrderController {
     }
 
     // update order
-    existingOrder.status =
-      status.toLowerCase() === OrderStatus.rejected
-        ? OrderStatus.rejected
-        : OrderStatus.approved;
+    existingOrder.status = status;
     existingOrder.farmerEmail = famerEmail;
     existingOrder.farmerName = farmerName;
     existingOrder.paymentMethod = paymentMethod;
@@ -120,15 +125,7 @@ export class OrderController {
     });
   }
 
-  static async getAllOrders(req: Request, res: Response) {
-    const cachedData = cache.get("orders");
-    if (cachedData) {
-      console.log("Returning cached seeds");
-      return res.status(HTTP_OK).json({
-        message: "Orders retrieved successfully",
-        data: cachedData,
-      });
-    }
+  static async getAllOrders(_: Request, res: Response) {
     console.log("Fetching orders from database");
     const orderRepo = AppDataSource.getRepository(Order);
     const orders = await orderRepo.find();
@@ -142,20 +139,11 @@ export class OrderController {
   static async paginateOrders(req: Request, res: Response) {
     const builder =
       AppDataSource.getRepository(Order).createQueryBuilder("orders");
-    const cachedData = cache.get("orders");
     const page: number = parseInt(req.query.page as string) || 5;
     const perPage = 5;
     builder.offset((page - 1) * perPage).limit(perPage);
-    if (cachedData) {
-      console.log("Returning cached seeds");
-      return res.status(HTTP_OK).json({
-        message: "Orders retrieved successfully",
-        data: cachedData,
-      });
-    }
     console.log("Fetching orders from database");
     const orders = await builder.getMany();
-    cache.put("orders", orders, TIME_OUT_LIMIT);
     return res.status(HTTP_OK).json({
       message: "Orders retrieved successfully",
       data: orders,

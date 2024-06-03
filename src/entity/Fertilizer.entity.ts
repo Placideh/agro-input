@@ -19,7 +19,7 @@ export class Fertilizer {
   @Column()
   description?: string;
 
-  @Column()
+  @Column("decimal", { nullable: false, precision: 10, scale: 2, default: 0.0 })
   price?: number;
 
   @OneToMany(() => Seed, (seed) => seed.fertilizer)

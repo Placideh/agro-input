@@ -15,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use("/", router, (_: Request, response: Response) => {
+  response.setHeader("Access-Control-Allow-Origin", "*");
   response.status(HTTP_NOT_FOUND).send({ message: "Route not found" });
 });
 

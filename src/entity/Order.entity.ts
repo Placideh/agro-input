@@ -22,16 +22,38 @@ export class Order {
   @JoinColumn()
   seed?: Seed;
 
-  @Column({ nullable: false })
+  @Column("decimal", {
+    nullable: false,
+    precision: 10,
+    scale: 2,
+    default: 0.0,
+  })
   amount?: number;
 
-  @Column({ nullable: false })
+  @Column("decimal", {
+    nullable: false,
+    precision: 10,
+    scale: 2,
+    default: 0.0,
+  })
   landSize?: number;
 
-  @Column({ nullable: false, name: "fertilizer_quantity" })
+  @Column("decimal", {
+    nullable: false,
+    name: "fertilizer_quantity",
+    precision: 10,
+    scale: 2,
+    default: 0.0,
+  })
   fertilizerQuantity?: number;
 
-  @Column({ nullable: false, name: "seed_quantity" })
+  @Column("decimal", {
+    nullable: false,
+    name: "seed_quantity",
+    precision: 10,
+    scale: 2,
+    default: 0.0,
+  })
   seedQuantity?: number;
 
   @Column({ nullable: false, name: "payment_method" })

@@ -6,18 +6,8 @@ import { roles } from "../types/index.types";
 
 const router = express.Router();
 
-router.post(
-  "/",
-  authenticate,
-  authorization([roles.admin]),
-  SeedController.registerSeed
-);
-router.patch(
-  "/:id",
-  authenticate,
-  authorization([roles.admin]),
-  SeedController.updateSeed
-);
+router.post("/", SeedController.registerSeed);
+router.patch("/:id", SeedController.updateSeed);
 router.get("/all", SeedController.getSeeds);
 router.get("/:id", SeedController.getSeed);
 router.delete(

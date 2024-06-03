@@ -12,7 +12,8 @@ const AppDataSource = new DataSource({
   username: DB_USERNAME,
   password: DB_PASSWORD,
   database: DB_DATABASE,
-  entities: ["src/**/*.entity{.ts,.js}"],
+  // entities: ["src/**/*.entity{.ts,.js}"],
+  entities: ["build/**/*.entity.js"],
   synchronize: true,
 });
 

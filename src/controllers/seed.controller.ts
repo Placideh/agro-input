@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import cache from "memory-cache";
 import AppDataSource from "../data-source";
 import {
   HTTP_CREATED,
@@ -8,7 +7,6 @@ import {
 } from "../constants/httpStatusCode";
 import { Fertilizer } from "../entity/Fertilizer.entity";
 import { Seed } from "../entity/Seed.entity";
-import { TIME_OUT_LIMIT } from "../constants/general";
 
 export class SeedController {
   static async registerSeed(req: Request, res: Response) {
@@ -93,18 +91,9 @@ export class SeedController {
   }
 
   static async getSeeds(_: Request, res: Response) {
-    const cachedData = cache.get("seeds");
-    if (cachedData) {
-      console.log("Returning cached seeds");
-      return res
-        .status(HTTP_OK)
-        .json({ message: "Seeds retrieved successfully", data: cachedData });
-    }
     console.log("Fetching seeds from database");
-
     const seedRepo = AppDataSource.getRepository(Seed);
     const seeds = await seedRepo.find();
-    cache.put("seeds", seeds, TIME_OUT_LIMIT);
     return res.status(HTTP_OK).json({
       message: "Seeds retrieved successfully",
       data: seeds,

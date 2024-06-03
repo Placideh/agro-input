@@ -17,7 +17,7 @@ RUN npm install --global pm2
 
 RUN cd build
 
-RUN pm2 start "npm start" --name "backend"
+# RUN pm2 start "npm start" --name "backend"
 
 # Copy needed env files
 # COPY .env ./
@@ -26,4 +26,4 @@ RUN pm2 start "npm start" --name "backend"
 # COPY build .
 
 EXPOSE 8080
-CMD ["node","index.js"]
+CMD ["node","./build/index.js"]
